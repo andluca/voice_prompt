@@ -25,13 +25,13 @@ DEFAULTS: dict[str, Any] = {
         "format": "wav",
     },
     "transcription": {
-        "model": "large-v3",
+        "model": "small",
         "device": "auto",
         "compute_type": "int8",
         "language": "en",
         "initial_prompt": "",
         "vad_filter": True,
-        "beam_size": 5,
+        "beam_size": 1,
         "word_timestamps": False,
     },
     "output": {

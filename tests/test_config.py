@@ -26,8 +26,8 @@ class TestConfigManager:
         cfg = ConfigManager(config_path=tmp_path / "nonexistent.yaml")
         assert cfg.hotkeys["record"] == "ctrl+shift+q"
         assert cfg.hotkeys["cancel"] == "esc"
-        assert cfg.transcription["model"] == "large-v3"
-        assert cfg.transcription["beam_size"] == 5
+        assert cfg.transcription["model"] == "small"
+        assert cfg.transcription["beam_size"] == 1
         assert cfg.audio["sample_rate"] == 16000
         assert cfg.audio["silence_duration"] == 2.0
         assert cfg.audio["grace_period"] == 10.0

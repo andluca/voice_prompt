@@ -1,10 +1,7 @@
 """Text output — type or copy transcription results."""
 
 import logging
-import platform
 import re
-import shutil
-import subprocess
 import time
 from typing import Optional
 
@@ -54,17 +51,27 @@ class TextOutputter:
             self._type_text(text)
 
     def _type_text(self, text: str) -> None:
-        delay = self._parse_delay()
         logger.info("Typing %d characters (delay=%s)", len(text), self.typing_speed)
+        time.sleep(0.2)  # let audio stream fully close
 
-        for char in text:
-            if char == "\n":
-                _keyboard.press(Key.enter)
-                _keyboard.release(Key.enter)
-            else:
-                _keyboard.type(char)
-            if delay:
+        delay = self._parse_delay()
+        if delay:
+            for char in text:
+                if char == "\n":
+                    _keyboard.press(Key.enter)
+                    _keyboard.release(Key.enter)
+                else:
+                    _keyboard.type(char)
                 time.sleep(delay)
+        else:
+            # Type entire string at once for instant mode
+            lines = text.split("\n")
+            for i, line in enumerate(lines):
+                if i > 0:
+                    _keyboard.press(Key.enter)
+                    _keyboard.release(Key.enter)
+                if line:
+                    _keyboard.type(line)
 
     def _parse_delay(self) -> Optional[float]:
         if self.typing_speed == "instant":
@@ -77,12 +84,17 @@ class TextOutputter:
     @staticmethod
     def _copy_to_clipboard(text: str) -> None:
         """Copy text to clipboard using platform-appropriate method."""
+        import platform
+
         system = platform.system()
         if system == "Windows":
+            import subprocess
             process = subprocess.Popen(["clip"], stdin=subprocess.PIPE)
             process.communicate(text.encode("utf-16le"))
         else:
             # Linux — try xclip, then xsel
+            import shutil
+            import subprocess
             if shutil.which("xclip"):
                 p = subprocess.Popen(
                     ["xclip", "-selection", "clipboard"],

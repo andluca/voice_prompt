@@ -4,9 +4,10 @@ import argparse
 import logging
 import os
 import shutil
+import signal
+import sys
 import time
 from pathlib import Path
-from typing import Optional
 
 from rich.console import Console
 from rich.logging import RichHandler
@@ -27,12 +28,20 @@ def _acquire_lock() -> bool:
     """Try to acquire a lock file. Returns False if another instance is running."""
     LOCK_FILE.parent.mkdir(parents=True, exist_ok=True)
     if LOCK_FILE.exists():
+        # Check if the PID in the lock file is still alive
         try:
             old_pid = int(LOCK_FILE.read_text().strip())
-            os.kill(old_pid, 0)
-            return False
-        except (OSError, ValueError):
-            pass
+            import psutil
+            if psutil.pid_exists(old_pid):
+                return False
+        except Exception:
+            # psutil not available or bad lock file — check with os
+            try:
+                old_pid = int(LOCK_FILE.read_text().strip())
+                os.kill(old_pid, 0)  # signal 0 = just check if alive
+                return False
+            except (OSError, ValueError):
+                pass  # process is dead or bad pid, stale lock
     LOCK_FILE.write_text(str(os.getpid()))
     return True
 
@@ -41,7 +50,7 @@ def _release_lock() -> None:
     LOCK_FILE.unlink(missing_ok=True)
 
 
-def _setup_logging(level: str, log_file: Optional[str]) -> None:
+def _setup_logging(level: str, log_file: str | None) -> None:
     handlers: list[logging.Handler] = [RichHandler(rich_tracebacks=True, show_path=False)]
 
     if log_file:
