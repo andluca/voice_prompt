@@ -29,7 +29,10 @@ audio:
   
   # Seconds of silence before auto-stopping (if silence_threshold > 0)
   silence_duration: 2.0
-  
+
+  # Seconds to wait for first speech before giving up
+  grace_period: 10.0
+
   # Maximum recording duration in seconds (safety limit)
   max_recording_duration: 120
   

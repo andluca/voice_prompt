@@ -36,3 +36,6 @@ config.yaml
 
 # Whisper model cache (too large for git)
 models/
+
+# Lock file
+voice-prompt.lock

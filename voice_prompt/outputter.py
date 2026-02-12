@@ -1,7 +1,10 @@
 """Text output — type or copy transcription results."""
 
 import logging
+import platform
 import re
+import shutil
+import subprocess
 import time
 from typing import Optional
 
@@ -74,17 +77,12 @@ class TextOutputter:
     @staticmethod
     def _copy_to_clipboard(text: str) -> None:
         """Copy text to clipboard using platform-appropriate method."""
-        import platform
-
         system = platform.system()
         if system == "Windows":
-            import subprocess
             process = subprocess.Popen(["clip"], stdin=subprocess.PIPE)
             process.communicate(text.encode("utf-16le"))
         else:
             # Linux — try xclip, then xsel
-            import shutil
-            import subprocess
             if shutil.which("xclip"):
                 p = subprocess.Popen(
                     ["xclip", "-selection", "clipboard"],

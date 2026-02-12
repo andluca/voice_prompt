@@ -25,6 +25,7 @@ if (-not (Test-Path $VenvDir)) {
 Write-Host "Installing dependencies..."
 pip install --upgrade pip
 pip install -r (Join-Path $RepoDir "requirements.txt")
+pip install -e $RepoDir
 
 # 3. Create config directory
 $ConfigDir = Join-Path $env:USERPROFILE ".voice-to-claude"
@@ -41,11 +42,11 @@ if (-not (Test-Path $ConfigFile)) {
 Write-Host ""
 $dl = Read-Host "Download Whisper large-v3 model now? (~3 GB) [y/N]"
 if ($dl -match "^[Yy]$") {
-    python (Join-Path $RepoDir "scripts\download-model.py")
+    python -m voice_prompt download-model
 }
 
 Write-Host ""
 Write-Host "Setup complete!" -ForegroundColor Green
-Write-Host "  Activate venv:  $VenvDir\Scripts\Activate.ps1"
-Write-Host "  Run:            python -m voice_prompt"
+Write-Host "  Run:            python -m voice_prompt start"
 Write-Host "  Quick test:     python -m voice_prompt test"
+Write-Host "  Hotkey:         Ctrl+Shift+V (default)"

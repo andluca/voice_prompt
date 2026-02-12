@@ -24,9 +24,13 @@ class TestDeepMerge:
 class TestConfigManager:
     def test_defaults_when_no_file(self, tmp_path):
         cfg = ConfigManager(config_path=tmp_path / "nonexistent.yaml")
-        assert cfg.audio["sample_rate"] == 16000
         assert cfg.hotkeys["record"] == "ctrl+shift+v"
+        assert cfg.hotkeys["cancel"] == "esc"
         assert cfg.transcription["model"] == "large-v3"
+        assert cfg.transcription["beam_size"] == 5
+        assert cfg.audio["sample_rate"] == 16000
+        assert cfg.audio["silence_duration"] == 2.0
+        assert cfg.audio["grace_period"] == 10.0
 
     def test_loads_user_overrides(self, tmp_path):
         config_file = tmp_path / "config.yaml"
@@ -40,7 +44,7 @@ class TestConfigManager:
         assert cfg.hotkeys["record"] == "ctrl+alt+r"
         assert cfg.audio["sample_rate"] == 44100
         # defaults preserved for unset keys
-        assert cfg.hotkeys["cancel"] == "escape"
+        assert cfg.hotkeys["cancel"] == "esc"
 
     def test_get_helper(self, tmp_path):
         cfg = ConfigManager(config_path=tmp_path / "nope.yaml")

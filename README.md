@@ -1,260 +1,173 @@
 # Voice-to-Claude
 
-**Voice-to-text tool for hands-free Claude Code prompting using local Whisper**
+Voice-to-text for hands-free coding with [Claude Code](https://docs.anthropic.com/en/docs/claude-code). Press a hotkey, speak, and your words appear wherever your cursor is — terminal, editor, browser, anywhere.
 
-Turn your voice into text instantly with near-perfect accuracy for technical speech. No API costs, 100% local processing.
+All transcription runs locally via [faster-whisper](https://github.com/SYSTRAN/faster-whisper). No API calls, no cloud, no cost.
 
-## ✨ Features
+## How It Works
 
-- 🎤 **Voice-activated recording** - Press a hotkey, speak, get text
-- 🧠 **High accuracy** - Whisper large-v3 model optimized for technical vocabulary
-- 🔒 **Completely private** - All processing happens locally, no cloud required
-- ⚡ **Fast transcription** - ~5 seconds for typical prompts
-- 🖥️ **Cross-platform** - Works on Linux and Windows
-- 🎯 **Works everywhere** - Terminal, VS Code, browsers, any text input
-- 💰 **Zero cost** - No API credits, no subscriptions
+```
+Press hotkey -> Record audio -> Transcribe locally -> Type into active window
+```
 
-## 🚀 Quick Start
+1. Press **Ctrl+Shift+V** (configurable).
+2. Speak your prompt.
+3. Stop talking — recording ends automatically after 2 seconds of silence.
+4. Text appears where your cursor is.
+
+The Whisper model stays loaded in memory after the first transcription, so subsequent prompts take only a few seconds.
+
+## Installation
 
 ### Linux
 
 ```bash
-git clone https://github.com/yourusername/voice-to-claude
+git clone https://github.com/yourusername/voice-to-claude.git
 cd voice-to-claude
 ./scripts/setup.sh
-voice-prompt start
 ```
 
 ### Windows
 
 ```powershell
-git clone https://github.com/yourusername/voice-to-claude
+git clone https://github.com/yourusername/voice-to-claude.git
 cd voice-to-claude
 .\scripts\setup.ps1
-voice-prompt start
 ```
 
-## 📖 Usage
+Both scripts create a virtual environment, install dependencies, copy the default config, and optionally download the Whisper model (~3 GB for `large-v3`).
 
-1. **Start the service** (runs in background):
-   ```bash
-   voice-prompt start
-   ```
-
-2. **Position your cursor** in any text input (terminal, VS Code, browser)
-
-3. **Press `Ctrl+Shift+V`** and speak your prompt
-
-4. **Wait 3-5 seconds** for transcription to complete
-
-5. **Text appears** where your cursor is
-
-6. **Press Enter** to submit (or continue editing)
-
-### Example: Claude Code Terminal
+## Usage
 
 ```bash
-# Open Claude Code in terminal
-claude-code
+# Start the service (foreground)
+python -m voice_prompt start
 
-# Press Ctrl+Shift+V and speak:
-# "Add error handling to the Harbor parser for missing task files"
+# Quick test — records 5 seconds, transcribes, prints result
+python -m voice_prompt test
 
-# Text appears in terminal:
-> Add error handling to the Harbor parser for missing task files
-
-# Press Enter to submit to Claude Code
+# Pre-download the model without starting the service
+python -m voice_prompt download-model
 ```
 
-### Example: VS Code
+On Linux you can also use the launcher scripts:
 
-```
-1. Open VS Code with Claude Code extension
-2. Click into chat input box
-3. Press Ctrl+Shift+V
-4. Speak: "Create a function that extracts behaviors from PRD markdown"
-5. Text appears in chat box
-6. Press Enter to send
+```bash
+./voice-prompt.sh          # foreground
+./voice-prompt-bg.sh       # background (nohup)
 ```
 
-## ⚙️ Configuration
+### Running in the Background on Windows
 
-Configuration file: `~/.voice-to-claude/config.yaml`
+Use `pythonw.exe` to run without a console window:
 
-### Change Hotkey
+```powershell
+.\venv\Scripts\pythonw.exe -m voice_prompt start
+```
+
+You can create a desktop shortcut pointing to that command for one-click startup.
+
+## Configuration
+
+Configuration lives at `~/.voice-to-claude/config.yaml`. A copy of `config.yaml.example` is placed there during setup. All settings have sensible defaults — the config file is optional.
+
+### Common Options
 
 ```yaml
 hotkeys:
-  record: "ctrl+alt+v"  # Change to your preferred combination
-```
+  record: "ctrl+shift+v"   # Change to any key combo
+  cancel: "escape"
 
-### Adjust Accuracy vs Speed
+audio:
+  silence_duration: 2.0     # Seconds of silence to auto-stop
+  grace_period: 10.0        # Wait this long for first speech before giving up
 
-```yaml
 transcription:
-  model: "large-v3"     # Best accuracy (default)
-  # model: "medium"     # Faster, slightly less accurate
-  # model: "base"       # Fastest, good for simple speech
-```
+  model: "large-v3"         # tiny | base | small | medium | large-v3
+  language: "en"            # Language code, or "" for auto-detect
+  beam_size: 5              # Higher = more accurate, slower
 
-### Output Mode
-
-```yaml
 output:
-  mode: "type"          # Type into active window (default)
-  # mode: "clipboard"   # Copy to clipboard instead
+  mode: "type"              # "type" into active window, or "clipboard"
 ```
 
-See [config.yaml.example](config.yaml.example) for all options.
+See [config.yaml.example](config.yaml.example) for all options with descriptions.
 
-## 📊 Model Comparison
+### Model Comparison
 
-| Model    | Size  | Speed | Accuracy | Best For                |
-|----------|-------|-------|----------|-------------------------|
-| tiny     | 75MB  | ⚡⚡⚡  | 85%      | Simple commands         |
-| base     | 140MB | ⚡⚡   | 90%      | General use             |
-| small    | 460MB | ⚡    | 95%      | Technical speech        |
-| large-v3 | 3GB   | ⚡    | 98%      | Perfect technical terms |
+| Model    | Size  | Speed   | Accuracy | Notes                      |
+|----------|-------|---------|----------|----------------------------|
+| tiny     | 75 MB | Fastest | ~85%     | Simple commands             |
+| base     | 140 MB| Fast    | ~90%     | General use                 |
+| small    | 460 MB| Medium  | ~95%     | Good for technical speech   |
+| medium   | 1.5 GB| Slower  | ~97%     | High accuracy               |
+| large-v3 | 3 GB  | Slowest | ~98%     | Best for technical vocabulary|
 
-**Recommended**: large-v3 (default) - Worth the disk space for near-perfect accuracy with technical vocabulary like "Harbor", "Stagehand", "epic-webdev-bench", etc.
+**Default: `large-v3`** — recommended for coding prompts where terms like function names, framework names, and CLI commands need to be transcribed correctly.
 
-## 🔧 Requirements
+## Requirements
 
-- **Python**: 3.9 or higher
-- **Disk Space**: ~3GB for large-v3 model
-- **RAM**: ~4GB when running
-- **OS**: Linux (any distro) or Windows 10/11
-- **Microphone**: Any USB or built-in mic
+- Python 3.9+
+- ~3 GB disk for the `large-v3` model (~4 GB RAM when running)
+- A microphone
+- Linux or Windows 10/11
 
-## 🐛 Troubleshooting
-
-### "No microphone detected"
-
-**Linux:**
-```bash
-# Check available devices
-python -c "import sounddevice as sd; print(sd.query_devices())"
-
-# Install audio libraries if needed
-sudo pacman -S portaudio  # Arch
-sudo apt install portaudio19-dev  # Ubuntu/Debian
-```
-
-**Windows:**
-- Check microphone permissions in Windows Settings
-- Ensure microphone is set as default device
-
-### "Model download failed"
+### Linux Audio Dependencies
 
 ```bash
-# Download manually
-python scripts/download-model.py
+# Arch
+sudo pacman -S portaudio
 
-# Or specify custom cache directory in config.yaml
-system:
-  model_cache_dir: "/path/to/models"
+# Ubuntu / Debian
+sudo apt install portaudio19-dev
 ```
 
-### "Hotkey not working"
+## Architecture
 
-- Check if another application is using the same hotkey
-- Try a different combination in `config.yaml`
-- On Linux, ensure you have permission for global hotkeys
+```
+voice_prompt/
+  config.py       Config loading with deep-merge defaults
+  recorder.py     Microphone capture with silence detection
+  transcriber.py  Whisper inference (lazy model loading, auto GPU/CPU)
+  outputter.py    Keyboard simulation via pynput
+  hotkey.py       Global hotkey listener via pynput GlobalHotKeys
+  main.py         CLI, wiring, single-instance lock
+```
 
-### "Transcription is slow"
+## Development
 
 ```bash
-# Check if GPU is being used (if available)
-python -c "import torch; print('CUDA available:', torch.cuda.is_available())"
-
-# If no GPU, switch to smaller model for speed
-# Edit config.yaml:
-transcription:
-  model: "base"  # Much faster on CPU
-```
-
-## 🔍 How It Works
-
-```mermaid
-graph LR
-    A[Press Hotkey] --> B[Record Audio]
-    B --> C[Save to Temp File]
-    C --> D[Transcribe with Whisper]
-    D --> E[Type into Active Window]
-    E --> F[Cleanup Temp File]
-```
-
-1. **Global hotkey listener** detects `Ctrl+Shift+V`
-2. **Audio recorder** captures from microphone
-3. **Whisper model** transcribes audio to text
-4. **Keyboard simulator** types text into active window
-5. **Cleanup** removes temporary files
-
-All processing happens locally on your machine. No internet required (after initial model download).
-
-## 🛠️ Development
-
-### Running from Source
-
-```bash
-# Create virtual environment
 python -m venv venv
-source venv/bin/activate  # or `venv\Scripts\activate` on Windows
-
-# Install dependencies
+source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-
-# Run directly
-python -m voice_prompt
-```
-
-### Running Tests
-
-```bash
 pip install -e ".[dev]"
+
+# Run tests
 pytest
-```
-
-### Code Quality
-
-```bash
-# Format code
-black voice_prompt/
 
 # Lint
 ruff check voice_prompt/
 
-# Type checking
-mypy voice_prompt/
+# Format
+black voice_prompt/
 ```
 
-## 🤝 Contributing
+## Troubleshooting
 
-Contributions welcome! Please:
+**Hotkey not working** — Another application may be using the same key combo. Change it in `config.yaml`. On Windows, note that `Ctrl+Alt` is equivalent to `AltGr` on some keyboard layouts (e.g., ABNT Brazilian), which can cause conflicts.
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+**No microphone detected** — Run `python -c "import sounddevice as sd; print(sd.query_devices())"` to check available devices. On Windows, verify mic permissions in system settings.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+**Slow transcription** — If you have an NVIDIA GPU, install PyTorch with CUDA support and set `device: "cuda"` in config. Otherwise, try a smaller model like `base` or `small`.
 
-## 📝 License
+**Model download fails** — Run `python -m voice_prompt download-model` directly. You can also set a custom cache directory via `system.model_cache_dir` in the config or the `VOICE_PROMPT_MODEL_DIR` environment variable.
 
-MIT License - see [LICENSE](LICENSE) for details
+## License
 
-## 🙏 Acknowledgments
+MIT
 
-- [OpenAI Whisper](https://github.com/openai/whisper) - Speech recognition model
-- [faster-whisper](https://github.com/guillaumekln/faster-whisper) - Optimized inference
-- Built for seamless [Claude Code](https://claude.ai/code) workflows
+## Acknowledgments
 
-## 📞 Support
-
-- **Issues**: [GitHub Issues](https://github.com/yourusername/voice-to-claude/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/voice-to-claude/discussions)
-
----
-
-**Made with ❤️ for agentic coding workflows**
+- [faster-whisper](https://github.com/SYSTRAN/faster-whisper) — CTranslate2-based Whisper inference
+- [OpenAI Whisper](https://github.com/openai/whisper) — The underlying speech recognition model
+- [pynput](https://github.com/moses-palmer/pynput) — Cross-platform keyboard control
