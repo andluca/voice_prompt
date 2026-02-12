@@ -4,10 +4,9 @@ import argparse
 import logging
 import os
 import shutil
-import signal
-import sys
 import time
 from pathlib import Path
+from typing import Optional
 
 from rich.console import Console
 from rich.logging import RichHandler
@@ -28,20 +27,12 @@ def _acquire_lock() -> bool:
     """Try to acquire a lock file. Returns False if another instance is running."""
     LOCK_FILE.parent.mkdir(parents=True, exist_ok=True)
     if LOCK_FILE.exists():
-        # Check if the PID in the lock file is still alive
         try:
             old_pid = int(LOCK_FILE.read_text().strip())
-            import psutil
-            if psutil.pid_exists(old_pid):
-                return False
-        except Exception:
-            # psutil not available or bad lock file — check with os
-            try:
-                old_pid = int(LOCK_FILE.read_text().strip())
-                os.kill(old_pid, 0)  # signal 0 = just check if alive
-                return False
-            except (OSError, ValueError):
-                pass  # process is dead or bad pid, stale lock
+            os.kill(old_pid, 0)  # signal 0 = just check if alive
+            return False
+        except (OSError, ValueError):
+            pass  # process is dead or bad pid, stale lock
     LOCK_FILE.write_text(str(os.getpid()))
     return True
 
@@ -50,7 +41,12 @@ def _release_lock() -> None:
     LOCK_FILE.unlink(missing_ok=True)
 
 
-def _setup_logging(level: str, log_file: str | None) -> None:
+def _setup_logging(
+    level: str,
+    log_file: Optional[str],
+    log_max_size: int = 10,
+    log_backup_count: int = 3,
+) -> None:
     handlers: list[logging.Handler] = [RichHandler(rich_tracebacks=True, show_path=False)]
 
     if log_file:
@@ -59,7 +55,11 @@ def _setup_logging(level: str, log_file: str | None) -> None:
         from logging.handlers import RotatingFileHandler
 
         handlers.append(
-            RotatingFileHandler(log_path, maxBytes=10 * 1024 * 1024, backupCount=3)
+            RotatingFileHandler(
+                log_path,
+                maxBytes=log_max_size * 1024 * 1024,
+                backupCount=log_backup_count,
+            )
         )
 
     logging.basicConfig(
@@ -70,7 +70,15 @@ def _setup_logging(level: str, log_file: str | None) -> None:
     )
 
 
-def _notify(title: str, message: str, timeout: int = 3) -> None:
+def _notify(
+    title: str,
+    message: str,
+    timeout: int = 3,
+    *,
+    enabled: bool = True,
+) -> None:
+    if not enabled:
+        return
     try:
         from plyer import notification
 
@@ -105,6 +113,7 @@ class VoicePrompt:
             beam_size=config.transcription["beam_size"],
             vad_filter=config.transcription["vad_filter"],
             initial_prompt=config.transcription["initial_prompt"],
+            num_threads=config.transcription["num_threads"],
         )
 
         self.outputter = TextOutputter(
@@ -115,6 +124,8 @@ class VoicePrompt:
         )
 
         self.hotkey_mgr = HotkeyManager()
+        self._notify_enabled = config.notifications["enabled"]
+        self._notify_timeout = config.notifications["timeout"]
         self._running = False
 
     # -- hotkey callbacks ------------------------------------------------------
@@ -170,7 +181,12 @@ class VoicePrompt:
         console.print("[cyan]Loading Whisper model into memory…[/]")
         self.transcriber.load_model()
         console.print("[green]Model ready![/]")
-        _notify("Voice Prompt", "Model loaded. Ready to record!")
+        _notify(
+            "Voice Prompt",
+            "Model loaded. Ready to record!",
+            timeout=self._notify_timeout,
+            enabled=self._notify_enabled,
+        )
 
         self.hotkey_mgr.register(
             self.config.hotkeys["record"], self._on_record_toggle
@@ -186,7 +202,12 @@ class VoicePrompt:
             f"[bold]Voice-to-Claude running.[/] Press [cyan]{record_key}[/] to record, "
             f"[cyan]Ctrl+C[/] to quit."
         )
-        _notify("Voice Prompt", f"Ready! Press {record_key} to record.")
+        _notify(
+            "Voice Prompt",
+            f"Ready! Press {record_key} to record.",
+            timeout=self._notify_timeout,
+            enabled=self._notify_enabled,
+        )
 
         try:
             while self._running:
@@ -204,7 +225,12 @@ def _cmd_start(args: argparse.Namespace) -> None:
         return
 
     cfg = ConfigManager(config_path=Path(args.config) if args.config else None)
-    _setup_logging(cfg.log_level, cfg.system.get("log_file"))
+    _setup_logging(
+        cfg.log_level,
+        cfg.system.get("log_file"),
+        log_max_size=cfg.system["log_max_size"],
+        log_backup_count=cfg.system["log_backup_count"],
+    )
     app = VoicePrompt(cfg)
     try:
         app.run()

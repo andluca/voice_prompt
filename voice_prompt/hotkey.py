@@ -23,7 +23,7 @@ _MODIFIER_MAP = {
 
 
 def _to_pynput_format(combo: str) -> str:
-    """Convert 'ctrl+shift+r' → '<ctrl>+<shift>+r' for pynput."""
+    """Convert 'ctrl+shift+q' → '<ctrl>+<shift>+q' for pynput."""
     parts = []
     for part in combo.lower().split("+"):
         part = part.strip()

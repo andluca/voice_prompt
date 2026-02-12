@@ -26,11 +26,19 @@ class TestConfigManager:
         cfg = ConfigManager(config_path=tmp_path / "nonexistent.yaml")
         assert cfg.hotkeys["record"] == "ctrl+shift+q"
         assert cfg.hotkeys["cancel"] == "esc"
+        assert "mode" not in cfg.hotkeys
         assert cfg.transcription["model"] == "small"
         assert cfg.transcription["beam_size"] == 1
+        assert cfg.transcription["num_threads"] == 0
+        assert "word_timestamps" not in cfg.transcription
         assert cfg.audio["sample_rate"] == 16000
         assert cfg.audio["silence_duration"] == 2.0
         assert cfg.audio["grace_period"] == 10.0
+        assert "format" not in cfg.audio
+        assert cfg.notifications["enabled"] is True
+        assert cfg.notifications["timeout"] == 3
+        assert "on_record_start" not in cfg.notifications
+        assert "advanced" not in cfg.config
 
     def test_loads_user_overrides(self, tmp_path):
         config_file = tmp_path / "config.yaml"

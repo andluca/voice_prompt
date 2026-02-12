@@ -15,8 +15,8 @@ class TestWhisperTranscriber:
 
     def test_default_parameters(self):
         t = WhisperTranscriber()
-        assert t.model_size == "large-v3"
-        assert t.beam_size == 5
+        assert t.model_size == "small"
+        assert t.beam_size == 1
         assert t.language == "en"
         assert t.vad_filter is True
 

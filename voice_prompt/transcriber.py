@@ -12,12 +12,12 @@ class WhisperTranscriber:
 
     def __init__(
         self,
-        model_size: str = "large-v3",
+        model_size: str = "small",
         device: str = "auto",
         compute_type: str = "int8",
         cache_dir: Optional[str] = None,
         language: str = "en",
-        beam_size: int = 5,
+        beam_size: int = 1,
         vad_filter: bool = True,
         initial_prompt: str = "",
         num_threads: int = 0,

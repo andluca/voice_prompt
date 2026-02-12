@@ -35,7 +35,7 @@ cd voice-to-claude
 .\scripts\setup.ps1
 ```
 
-Both scripts create a virtual environment, install dependencies, copy the default config, and optionally download the Whisper model (~3 GB for `large-v3`).
+Both scripts create a virtual environment, install dependencies, copy the default config, and optionally download the Whisper model (~460 MB for the default `small` model).
 
 ## Usage
 
@@ -83,9 +83,10 @@ audio:
   grace_period: 10.0        # Wait this long for first speech before giving up
 
 transcription:
-  model: "large-v3"         # tiny | base | small | medium | large-v3
+  model: "small"            # tiny | base | small | medium | large-v3
   language: "en"            # Language code, or "" for auto-detect
-  beam_size: 5              # Higher = more accurate, slower
+  beam_size: 1              # Higher = more accurate, slower
+  num_threads: 0            # 0 = auto
 
 output:
   mode: "type"              # "type" into active window, or "clipboard"
@@ -103,12 +104,12 @@ See [config.yaml.example](config.yaml.example) for all options with descriptions
 | medium   | 1.5 GB| Slower  | ~97%     | High accuracy               |
 | large-v3 | 3 GB  | Slowest | ~98%     | Best for technical vocabulary|
 
-**Default: `large-v3`** — recommended for coding prompts where terms like function names, framework names, and CLI commands need to be transcribed correctly.
+**Default: `small`** — good balance of speed and accuracy for coding prompts. Use `large-v3` if you need the highest accuracy for technical vocabulary and have the disk space / RAM.
 
 ## Requirements
 
 - Python 3.9+
-- ~3 GB disk for the `large-v3` model (~4 GB RAM when running)
+- ~460 MB disk for the default `small` model (~1 GB RAM when running)
 - A microphone
 - Linux or Windows 10/11
 

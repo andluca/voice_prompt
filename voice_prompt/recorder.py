@@ -91,7 +91,7 @@ class AudioRecorder:
                         logger.info("Speech detected")
                     self._speech_detected = True
                     self._silent_chunks = 0
-                elif is_silent:
+                else:
                     self._silent_chunks += 1
 
                 # Only auto-stop after speech was detected, then silence

@@ -13,7 +13,6 @@ DEFAULTS: dict[str, Any] = {
     "hotkeys": {
         "record": "ctrl+shift+q",
         "cancel": "esc",
-        "mode": "toggle",
     },
     "audio": {
         "sample_rate": 16000,
@@ -22,7 +21,6 @@ DEFAULTS: dict[str, Any] = {
         "silence_duration": 2.0,
         "grace_period": 10.0,
         "max_recording_duration": 120,
-        "format": "wav",
     },
     "transcription": {
         "model": "small",
@@ -32,7 +30,7 @@ DEFAULTS: dict[str, Any] = {
         "initial_prompt": "",
         "vad_filter": True,
         "beam_size": 1,
-        "word_timestamps": False,
+        "num_threads": 0,
     },
     "output": {
         "mode": "type",
@@ -52,15 +50,7 @@ DEFAULTS: dict[str, Any] = {
     },
     "notifications": {
         "enabled": True,
-        "on_record_start": True,
-        "on_transcription_complete": True,
-        "on_error": True,
         "timeout": 3,
-    },
-    "advanced": {
-        "audio_buffer_size": 4096,
-        "num_threads": 0,
-        "quantize": True,
     },
 }
 

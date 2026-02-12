@@ -10,10 +10,6 @@ hotkeys:
   
   # Key to cancel current recording
   cancel: "escape"
-  
-  # Recording mode: "toggle" (press once to start, once to stop) 
-  #                 or "hold" (hold key to record, release to stop)
-  mode: "toggle"
 
 # Audio recording settings
 audio:
@@ -35,16 +31,13 @@ audio:
 
   # Maximum recording duration in seconds (safety limit)
   max_recording_duration: 120
-  
-  # Audio format for temp files
-  format: "wav"
 
 # Whisper transcription settings
 transcription:
   # Whisper model size
   # Options: tiny, base, small, medium, large-v3
-  # large-v3: ~3GB, best accuracy for technical terms
-  model: "large-v3"
+  # small: ~460MB, good accuracy and fast; large-v3: ~3GB, best accuracy
+  model: "small"
   
   # Device to run inference on
   # Options: "auto" (detect GPU, fallback to CPU), "cpu", "cuda"
@@ -67,10 +60,10 @@ transcription:
   vad_filter: true
   
   # Beam size for decoding (1-10, higher=slower but more accurate)
-  beam_size: 5
-  
-  # Word-level timestamps (useful for debugging)
-  word_timestamps: false
+  beam_size: 1
+
+  # Number of threads for transcription (0=auto)
+  num_threads: 0
 
 # Text output settings
 output:
@@ -116,26 +109,6 @@ system:
 notifications:
   # Enable desktop notifications
   enabled: true
-  
-  # Show notification when recording starts
-  on_record_start: true
-  
-  # Show notification when transcription completes
-  on_transcription_complete: true
-  
-  # Show notification on errors
-  on_error: true
-  
+
   # Notification timeout (seconds)
   timeout: 3
-
-# Advanced settings (typically don't need to change)
-advanced:
-  # Buffer size for audio recording (samples)
-  audio_buffer_size: 4096
-  
-  # Number of threads for transcription (0=auto)
-  num_threads: 0
-  
-  # Enable model quantization for faster inference (CPU only)
-  quantize: true
