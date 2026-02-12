@@ -11,8 +11,8 @@ logger = logging.getLogger(__name__)
 
 DEFAULTS: dict[str, Any] = {
     "hotkeys": {
-        "record": "ctrl+alt+v",
-        "cancel": "escape",
+        "record": "ctrl+shift+r",
+        "cancel": "esc",
         "mode": "toggle",
     },
     "audio": {
