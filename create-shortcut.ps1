@@ -6,7 +6,7 @@ $bg = $WshShell.CreateShortcut("$desktop\Voice Prompt.lnk")
 $bg.TargetPath = "$PSScriptRoot\venv\Scripts\pythonw.exe"
 $bg.Arguments = "-m voice_prompt start"
 $bg.WorkingDirectory = $PSScriptRoot
-$bg.Description = "Voice-to-Claude background service"
+$bg.Description = "Voice Prompt background service"
 $bg.Save()
 Write-Host "Created: Voice Prompt.lnk (background)"
 
@@ -15,6 +15,6 @@ $fg = $WshShell.CreateShortcut("$desktop\Voice Prompt Terminal.lnk")
 $fg.TargetPath = "$PSScriptRoot\venv\Scripts\python.exe"
 $fg.Arguments = "-m voice_prompt start"
 $fg.WorkingDirectory = $PSScriptRoot
-$fg.Description = "Voice-to-Claude with terminal logs"
+$fg.Description = "Voice Prompt with terminal logs"
 $fg.Save()
 Write-Host "Created: Voice Prompt Terminal.lnk (with logs)"

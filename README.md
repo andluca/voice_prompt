@@ -1,4 +1,4 @@
-# Voice-to-Claude
+# Voice Prompt
 
 Voice-to-text for hands-free coding with [Claude Code](https://docs.anthropic.com/en/docs/claude-code). Press a hotkey, speak, and your words appear wherever your cursor is — terminal, editor, browser, anywhere.
 
@@ -22,16 +22,16 @@ The Whisper model stays loaded in memory after the first transcription, so subse
 ### Linux
 
 ```bash
-git clone https://github.com/yourusername/voice-to-claude.git
-cd voice-to-claude
+git clone https://github.com/andluca/voice_prompt.git
+cd voice_prompt
 ./scripts/setup.sh
 ```
 
 ### Windows
 
 ```powershell
-git clone https://github.com/yourusername/voice-to-claude.git
-cd voice-to-claude
+git clone https://github.com/andluca/voice_prompt.git
+cd voice_prompt
 .\scripts\setup.ps1
 ```
 
@@ -69,7 +69,7 @@ You can create a desktop shortcut pointing to that command for one-click startup
 
 ## Configuration
 
-Configuration lives at `~/.voice-to-claude/config.yaml`. A copy of `config.yaml.example` is placed there during setup. All settings have sensible defaults — the config file is optional.
+Configuration lives at `~/.voice_prompt/config.yaml`. A copy of `config.yaml.example` is placed there during setup. All settings have sensible defaults — the config file is optional.
 
 ### Common Options
 

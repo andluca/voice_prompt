@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "voice-to-claude"
+name = "voice_prompt"
 version = "0.1.0"
 description = "Voice-to-text tool for hands-free Claude Code prompting using local Whisper"
 readme = "README.md"
@@ -52,10 +52,10 @@ dev = [
 voice-prompt = "voice_prompt.main:cli"
 
 [project.urls]
-Homepage = "https://github.com/yourusername/voice-to-claude"
-Documentation = "https://github.com/yourusername/voice-to-claude#readme"
-Repository = "https://github.com/yourusername/voice-to-claude"
-"Bug Tracker" = "https://github.com/yourusername/voice-to-claude/issues"
+Homepage = "https://github.com/andluca/voice_prompt"
+Documentation = "https://github.com/andluca/voice_prompt#readme"
+Repository = "https://github.com/andluca/voice_prompt"
+"Bug Tracker" = "https://github.com/andluca/voice_prompt/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]

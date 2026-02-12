@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Linux/macOS setup script for Voice-to-Claude
+# Linux/macOS setup script for Voice Prompt
 set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 VENV_DIR="$REPO_DIR/venv"
 
-echo "=== Voice-to-Claude Setup ==="
+echo "=== Voice Prompt Setup ==="
 
 # 1. Create venv
 if [ ! -d "$VENV_DIR" ]; then
@@ -22,7 +22,7 @@ pip install -r "$REPO_DIR/requirements.txt"
 pip install -e "$REPO_DIR"
 
 # 3. Create config directory
-CONFIG_DIR="$HOME/.voice-to-claude"
+CONFIG_DIR="$HOME/.voice_prompt"
 mkdir -p "$CONFIG_DIR"
 if [ ! -f "$CONFIG_DIR/config.yaml" ]; then
     cp "$REPO_DIR/config.yaml.example" "$CONFIG_DIR/config.yaml"

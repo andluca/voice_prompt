@@ -1,4 +1,4 @@
-"""Configuration management for Voice-to-Claude."""
+"""Configuration management for Voice Prompt."""
 
 import logging
 import os
@@ -40,13 +40,13 @@ DEFAULTS: dict[str, Any] = {
     },
     "system": {
         "log_level": "INFO",
-        "log_file": str(Path.home() / ".voice-to-claude" / "voice-prompt.log"),
+        "log_file": str(Path.home() / ".voice_prompt" / "voice-prompt.log"),
         "log_max_size": 10,
         "log_backup_count": 3,
         "model_cache_dir": str(Path.home() / ".cache" / "whisper"),
         "temp_dir": None,
         "save_failed_audio": True,
-        "failed_audio_dir": str(Path.home() / ".voice-to-claude" / "failed"),
+        "failed_audio_dir": str(Path.home() / ".voice_prompt" / "failed"),
     },
     "notifications": {
         "enabled": True,
@@ -54,7 +54,7 @@ DEFAULTS: dict[str, Any] = {
     },
 }
 
-DEFAULT_CONFIG_PATH = Path.home() / ".voice-to-claude" / "config.yaml"
+DEFAULT_CONFIG_PATH = Path.home() / ".voice_prompt" / "config.yaml"
 
 
 def _deep_merge(base: dict, override: dict) -> dict:

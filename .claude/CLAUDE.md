@@ -1,4 +1,4 @@
-# Voice-to-Claude Project
+# Voice Prompt Project
 
 ## Project Overview
 
@@ -191,11 +191,11 @@ with tempfile.NamedTemporaryFile(suffix='.wav', delete=True) as f:
 ### 3. Platform-Specific Paths
 ```python
 # ❌ WRONG
-config_path = "~/.voice-to-claude/config.yaml"
+config_path = "~/.voice_prompt/config.yaml"
 
 # ✅ RIGHT
 from pathlib import Path
-config_path = Path.home() / ".voice-to-claude" / "config.yaml"
+config_path = Path.home() / ".voice_prompt" / "config.yaml"
 ```
 
 ### 4. Model Download on First Run

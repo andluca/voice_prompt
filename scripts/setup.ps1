@@ -1,4 +1,4 @@
-# Windows setup script for Voice-to-Claude
+# Windows setup script for Voice Prompt
 $ErrorActionPreference = "Stop"
 
 $RepoDir = Split-Path -Parent $PSScriptRoot
@@ -11,7 +11,7 @@ if (Test-Path "$RepoDir\scripts\setup.ps1") {
 
 $VenvDir = Join-Path $RepoDir "venv"
 
-Write-Host "=== Voice-to-Claude Setup ===" -ForegroundColor Cyan
+Write-Host "=== Voice Prompt Setup ===" -ForegroundColor Cyan
 
 # 1. Create venv
 if (-not (Test-Path $VenvDir)) {
@@ -28,7 +28,7 @@ pip install -r (Join-Path $RepoDir "requirements.txt")
 pip install -e $RepoDir
 
 # 3. Create config directory
-$ConfigDir = Join-Path $env:USERPROFILE ".voice-to-claude"
+$ConfigDir = Join-Path $env:USERPROFILE ".voice_prompt"
 if (-not (Test-Path $ConfigDir)) {
     New-Item -ItemType Directory -Path $ConfigDir | Out-Null
 }
@@ -40,7 +40,7 @@ if (-not (Test-Path $ConfigFile)) {
 
 # 4. Optionally download model
 Write-Host ""
-$dl = Read-Host "Download Whisper large-v3 model now? (~3 GB) [y/N]"
+$dl = Read-Host "Download Whisper model now? (~460 MB for small) [y/N]"
 if ($dl -match "^[Yy]$") {
     python -m voice_prompt download-model
 }

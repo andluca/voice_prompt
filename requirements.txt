@@ -1,4 +1,4 @@
-# Core dependencies for voice-to-claude
+# Core dependencies for voice_prompt
 
 # Whisper transcription (optimized, 4x faster than openai-whisper)
 faster-whisper>=1.0.0

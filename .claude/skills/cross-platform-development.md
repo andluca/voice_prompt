@@ -7,7 +7,7 @@
 from pathlib import Path
 
 # ✅ Cross-platform paths
-config_dir = Path.home() / ".voice-to-claude"
+config_dir = Path.home() / ".voice_prompt"
 config_file = config_dir / "config.yaml"
 log_file = config_dir / "logs" / "app.log"
 
@@ -15,7 +15,7 @@ log_file = config_dir / "logs" / "app.log"
 cache_dir = Path("~/.cache/whisper").expanduser()
 
 # ❌ Don't use os.path or string concatenation
-config_dir = os.path.expanduser("~") + "/.voice-to-claude"  # Breaks on Windows
+config_dir = os.path.expanduser("~") + "/.voice_prompt"  # Breaks on Windows
 config_file = config_dir + "/config.yaml"  # Wrong separator on Windows
 ```
 
@@ -42,16 +42,16 @@ def get_config_dir() -> Path:
     system = platform.system()
     
     if system == "Linux":
-        # XDG standard: ~/.config/voice-to-claude
-        return Path.home() / ".config" / "voice-to-claude"
+        # XDG standard: ~/.config/voice_prompt
+        return Path.home() / ".config" / "voice_prompt"
     elif system == "Windows":
-        # Windows: %APPDATA%/voice-to-claude
-        return Path(os.getenv("APPDATA")) / "voice-to-claude"
+        # Windows: %APPDATA%/voice_prompt
+        return Path(os.getenv("APPDATA")) / "voice_prompt"
     elif system == "Darwin":  # macOS
-        return Path.home() / "Library" / "Application Support" / "voice-to-claude"
+        return Path.home() / "Library" / "Application Support" / "voice_prompt"
     else:
         # Fallback
-        return Path.home() / ".voice-to-claude"
+        return Path.home() / ".voice_prompt"
 ```
 
 ### Platform-Specific Code Blocks
@@ -149,7 +149,7 @@ def get_meta_key():
 from pathlib import Path
 
 # ✅ Create directory with parents
-config_dir = Path.home() / ".voice-to-claude"
+config_dir = Path.home() / ".voice_prompt"
 config_dir.mkdir(parents=True, exist_ok=True)
 
 # ✅ Check if file exists
@@ -189,9 +189,9 @@ cache_dir = os.getenv("VOICE_PROMPT_CACHE", str(Path.home() / ".cache"))
 # ✅ Platform-specific environment variables
 if platform.system() == "Windows":
     appdata = Path(os.getenv("APPDATA"))
-    config_dir = appdata / "voice-to-claude"
+    config_dir = appdata / "voice_prompt"
 else:
-    config_dir = Path.home() / ".config" / "voice-to-claude"
+    config_dir = Path.home() / ".config" / "voice_prompt"
 ```
 
 ## Subprocess and Commands
@@ -248,7 +248,7 @@ def show_notification(title: str, message: str, timeout: int = 3):
             title=title,
             message=message,
             timeout=timeout,
-            app_name="Voice-to-Claude"
+            app_name="Voice Prompt"
         )
     except Exception as e:
         # Fallback to console if notifications fail
@@ -321,8 +321,8 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 # Create config directory (XDG standard)
-mkdir -p ~/.config/voice-to-claude
-cp config.yaml.example ~/.config/voice-to-claude/config.yaml
+mkdir -p ~/.config/voice_prompt
+cp config.yaml.example ~/.config/voice_prompt/config.yaml
 
 echo "Installation complete!"
 ```
@@ -347,7 +347,7 @@ python -m venv venv
 pip install -r requirements.txt
 
 # Create config directory
-$configDir = "$env:APPDATA\voice-to-claude"
+$configDir = "$env:APPDATA\voice_prompt"
 New-Item -ItemType Directory -Force -Path $configDir
 Copy-Item config.yaml.example "$configDir\config.yaml"
 
@@ -358,9 +358,9 @@ Write-Host "Installation complete!"
 
 ### Linux (systemd)
 ```ini
-# voice-to-claude.service
+# voice_prompt.service
 [Unit]
-Description=Voice-to-Claude Service
+Description=Voice Prompt Service
 After=network.target
 
 [Service]
@@ -376,16 +376,16 @@ WantedBy=default.target
 ```bash
 # Install service
 mkdir -p ~/.config/systemd/user
-cp voice-to-claude.service ~/.config/systemd/user/
-systemctl --user enable voice-to-claude
-systemctl --user start voice-to-claude
+cp voice_prompt.service ~/.config/systemd/user/
+systemctl --user enable voice_prompt
+systemctl --user start voice_prompt
 ```
 
 ### Windows (Startup)
 ```powershell
 # Add to Windows startup
 $startupPath = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup"
-$shortcut = "$startupPath\voice-to-claude.lnk"
+$shortcut = "$startupPath\voice_prompt.lnk"
 
 $WshShell = New-Object -ComObject WScript.Shell
 $Shortcut = $WshShell.CreateShortcut($shortcut)
@@ -407,15 +407,15 @@ def get_log_dir() -> Path:
     system = platform.system()
     
     if system == "Linux":
-        # XDG standard: ~/.local/state/voice-to-claude
-        return Path.home() / ".local" / "state" / "voice-to-claude"
+        # XDG standard: ~/.local/state/voice_prompt
+        return Path.home() / ".local" / "state" / "voice_prompt"
     elif system == "Windows":
-        # Windows: %LOCALAPPDATA%/voice-to-claude/logs
-        return Path(os.getenv("LOCALAPPDATA")) / "voice-to-claude" / "logs"
+        # Windows: %LOCALAPPDATA%/voice_prompt/logs
+        return Path(os.getenv("LOCALAPPDATA")) / "voice_prompt" / "logs"
     elif system == "Darwin":  # macOS
-        return Path.home() / "Library" / "Logs" / "voice-to-claude"
+        return Path.home() / "Library" / "Logs" / "voice_prompt"
     else:
-        return Path.home() / ".voice-to-claude" / "logs"
+        return Path.home() / ".voice_prompt" / "logs"
 
 # Create log directory
 log_dir = get_log_dir()
@@ -454,7 +454,7 @@ def get_device() -> str:
 ```python
 # ❌ Only works on Linux
 LOG_FILE = "/var/log/voice-prompt.log"
-CONFIG_FILE = "~/.voice-to-claude/config.yaml"
+CONFIG_FILE = "~/.voice_prompt/config.yaml"
 
 # ✅ Cross-platform
 LOG_FILE = get_log_dir() / "voice-prompt.log"

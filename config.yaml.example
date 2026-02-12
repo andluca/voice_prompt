@@ -1,5 +1,5 @@
-# Voice-to-Claude Configuration
-# Copy this file to ~/.voice-to-claude/config.yaml and customize
+# Voice Prompt Configuration
+# Copy this file to ~/.voice_prompt/config.yaml and customize
 
 # Hotkey configuration
 hotkeys:
@@ -87,7 +87,7 @@ system:
   log_level: "INFO"
   
   # Log file location (null to disable file logging)
-  log_file: "~/.voice-to-claude/voice-prompt.log"
+  log_file: "~/.voice_prompt/voice-prompt.log"
   
   # Maximum log file size (MB) before rotation
   log_max_size: 10
@@ -103,7 +103,7 @@ system:
   
   # Keep failed transcriptions for debugging
   save_failed_audio: true
-  failed_audio_dir: "~/.voice-to-claude/failed"
+  failed_audio_dir: "~/.voice_prompt/failed"
 
 # Notifications
 notifications:

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Run tests for voice-to-claude
+# Run tests for voice_prompt
 
 cat << 'EOF'
 🧪 Running Tests

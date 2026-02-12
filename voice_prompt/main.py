@@ -1,4 +1,4 @@
-"""CLI entry-point and integration layer for Voice-to-Claude."""
+"""CLI entry-point and integration layer for Voice Prompt."""
 
 import argparse
 import logging
@@ -20,7 +20,7 @@ from voice_prompt.transcriber import WhisperTranscriber
 console = Console()
 logger = logging.getLogger("voice_prompt")
 
-LOCK_FILE = Path.home() / ".voice-to-claude" / "voice-prompt.lock"
+LOCK_FILE = Path.home() / ".voice_prompt" / "voice-prompt.lock"
 
 
 def _acquire_lock() -> bool:
@@ -199,7 +199,7 @@ class VoicePrompt:
         self._running = True
         record_key = self.config.hotkeys["record"]
         console.print(
-            f"[bold]Voice-to-Claude running.[/] Press [cyan]{record_key}[/] to record, "
+            f"[bold]Voice Prompt running.[/] Press [cyan]{record_key}[/] to record, "
             f"[cyan]Ctrl+C[/] to quit."
         )
         _notify(

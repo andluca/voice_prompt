@@ -1,4 +1,4 @@
-# Python Best Practices for Voice-to-Claude
+# Python Best Practices for Voice Prompt
 
 ## Code Style
 
@@ -17,11 +17,11 @@ files: list[Path] = [...]        # Not List[Path]
 ### Pathlib Over os.path
 ```python
 # ❌ Don't use os.path
-config_dir = os.path.expanduser("~/.voice-to-claude")
+config_dir = os.path.expanduser("~/.voice_prompt")
 config_file = os.path.join(config_dir, "config.yaml")
 
 # ✅ Use pathlib
-config_dir = Path.home() / ".voice-to-claude"
+config_dir = Path.home() / ".voice_prompt"
 config_file = config_dir / "config.yaml"
 ```
 
@@ -416,7 +416,7 @@ voice_prompt/
 ```python
 # voice_prompt/__init__.py
 
-"""Voice-to-Claude: Voice-to-text for hands-free coding."""
+"""Voice Prompt: Voice-to-text for hands-free coding."""
 
 __version__ = "0.1.0"
 

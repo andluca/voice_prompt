@@ -42,7 +42,7 @@ case "$COMPONENT" in
         echo "🎯 Key features:"
         echo "  - Load YAML with defaults"
         echo "  - Validate configuration schema"
-        echo "  - Expand user paths (~/.voice-to-claude)"
+        echo "  - Expand user paths (~/.voice_prompt)"
         echo "  - Handle missing/invalid config gracefully"
         echo ""
         echo "💡 See .claude/skills/python-best-practices.md for patterns"
