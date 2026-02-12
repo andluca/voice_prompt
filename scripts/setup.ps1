@@ -49,4 +49,4 @@ Write-Host ""
 Write-Host "Setup complete!" -ForegroundColor Green
 Write-Host "  Run:            python -m voice_prompt start"
 Write-Host "  Quick test:     python -m voice_prompt test"
-Write-Host "  Hotkey:         Ctrl+Shift+V (default)"
+Write-Host "  Hotkey:         Ctrl+Shift+Q (default)"

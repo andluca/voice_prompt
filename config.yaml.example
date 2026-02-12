@@ -4,9 +4,9 @@
 # Hotkey configuration
 hotkeys:
   # Key combination to start/stop recording
-  # Format: "modifier+modifier+key" (e.g., "ctrl+shift+v")
+  # Format: "modifier+modifier+key" (e.g., "ctrl+shift+q")
   # Modifiers: ctrl, alt, shift, cmd (macOS)
-  record: "ctrl+shift+v"
+  record: "ctrl+shift+q"
   
   # Key to cancel current recording
   cancel: "escape"

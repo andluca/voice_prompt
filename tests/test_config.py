@@ -24,7 +24,7 @@ class TestDeepMerge:
 class TestConfigManager:
     def test_defaults_when_no_file(self, tmp_path):
         cfg = ConfigManager(config_path=tmp_path / "nonexistent.yaml")
-        assert cfg.hotkeys["record"] == "ctrl+shift+v"
+        assert cfg.hotkeys["record"] == "ctrl+shift+q"
         assert cfg.hotkeys["cancel"] == "esc"
         assert cfg.transcription["model"] == "large-v3"
         assert cfg.transcription["beam_size"] == 5

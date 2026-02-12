@@ -10,7 +10,7 @@ All transcription runs locally via [faster-whisper](https://github.com/SYSTRAN/f
 Press hotkey -> Record audio -> Transcribe locally -> Type into active window
 ```
 
-1. Press **Ctrl+Shift+V** (configurable).
+1. Press **Ctrl+Shift+Q** (configurable).
 2. Speak your prompt.
 3. Stop talking — recording ends automatically after 2 seconds of silence.
 4. Text appears where your cursor is.
@@ -75,7 +75,7 @@ Configuration lives at `~/.voice-to-claude/config.yaml`. A copy of `config.yaml.
 
 ```yaml
 hotkeys:
-  record: "ctrl+shift+v"   # Change to any key combo
+  record: "ctrl+shift+q"   # Change to any key combo
   cancel: "escape"
 
 audio:
