@@ -33,21 +33,21 @@ class TestWhisperTranscriber:
         assert device == "cpu"
         assert compute == "float32"
 
-    @patch("voice_prompt.transcriber.WhisperModel")
+    @patch("faster_whisper.WhisperModel")
     def test_load_model(self, mock_model_cls):
         t = WhisperTranscriber(device="cpu")
         t.load_model()
         assert t.is_loaded
         mock_model_cls.assert_called_once()
 
-    @patch("voice_prompt.transcriber.WhisperModel")
+    @patch("faster_whisper.WhisperModel")
     def test_load_model_is_idempotent(self, mock_model_cls):
         t = WhisperTranscriber(device="cpu")
         t.load_model()
         t.load_model()
         mock_model_cls.assert_called_once()
 
-    @patch("voice_prompt.transcriber.WhisperModel")
+    @patch("faster_whisper.WhisperModel")
     def test_transcribe_returns_joined_segments(self, mock_model_cls):
         mock_model = MagicMock()
         mock_model_cls.return_value = mock_model
@@ -66,7 +66,7 @@ class TestWhisperTranscriber:
         result = t.transcribe(Path("fake.wav"))
         assert result == "Hello world"
 
-    @patch("voice_prompt.transcriber.WhisperModel")
+    @patch("faster_whisper.WhisperModel")
     def test_transcribe_single_segment(self, mock_model_cls):
         mock_model = MagicMock()
         mock_model_cls.return_value = mock_model
