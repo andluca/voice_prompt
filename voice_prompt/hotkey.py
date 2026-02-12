@@ -1,4 +1,4 @@
-"""Global hotkey listener using pynput."""
+"""Global hotkey listener using pynput's built-in GlobalHotKeys."""
 
 import logging
 import threading
@@ -8,54 +8,51 @@ from pynput import keyboard
 
 logger = logging.getLogger(__name__)
 
-# Map config strings → pynput keys
+# Map friendly config names → pynput hotkey format
 _MODIFIER_MAP = {
-    "ctrl": keyboard.Key.ctrl_l,
-    "shift": keyboard.Key.shift,
-    "alt": keyboard.Key.alt_l,
-    "cmd": keyboard.Key.cmd,
+    "ctrl": "<ctrl>",
+    "shift": "<shift>",
+    "alt": "<alt>",
+    "cmd": "<cmd>",
+    "esc": "<esc>",
+    "escape": "<esc>",
+    "space": "<space>",
+    "enter": "<enter>",
+    "tab": "<tab>",
 }
 
 
-def _parse_hotkey(combo: str) -> set:
-    """Parse a hotkey string like 'ctrl+shift+v' into pynput key objects."""
-    keys: set = set()
+def _to_pynput_format(combo: str) -> str:
+    """Convert 'ctrl+shift+r' → '<ctrl>+<shift>+r' for pynput."""
+    parts = []
     for part in combo.lower().split("+"):
         part = part.strip()
         if part in _MODIFIER_MAP:
-            keys.add(_MODIFIER_MAP[part])
-        elif len(part) == 1:
-            keys.add(keyboard.KeyCode.from_char(part))
+            parts.append(_MODIFIER_MAP[part])
         else:
-            # Try named key (e.g. "escape", "space")
-            try:
-                keys.add(getattr(keyboard.Key, part))
-            except AttributeError:
-                logger.warning("Unknown key: %s", part)
-    return keys
+            parts.append(part)
+    return "+".join(parts)
 
 
 class HotkeyManager:
     """Registers global hotkeys and dispatches callbacks."""
 
     def __init__(self) -> None:
-        self._hotkeys: dict[frozenset, Callable] = {}
-        self._pressed: set = set()
-        self._listener: Optional[keyboard.Listener] = None
-        self._lock = threading.Lock()
+        self._bindings: dict[str, Callable] = {}
+        self._listener: Optional[keyboard.GlobalHotKeys] = None
 
     def register(self, combo: str, callback: Callable) -> None:
-        """Register a hotkey combination (e.g. 'ctrl+shift+v')."""
-        keys = frozenset(_parse_hotkey(combo))
-        self._hotkeys[keys] = callback
-        logger.info("Registered hotkey: %s", combo)
+        """Register a hotkey combination (e.g. 'ctrl+shift+r')."""
+        pynput_combo = _to_pynput_format(combo)
+        # Wrap callback so it runs in a separate thread and won't block the listener
+        def _threaded() -> None:
+            threading.Thread(target=callback, daemon=True).start()
+        self._bindings[pynput_combo] = _threaded
+        logger.info("Registered hotkey: %s -> %s", combo, pynput_combo)
 
     def start(self) -> None:
         """Start listening for hotkeys in a background thread."""
-        self._listener = keyboard.Listener(
-            on_press=self._on_press,
-            on_release=self._on_release,
-        )
+        self._listener = keyboard.GlobalHotKeys(self._bindings)
         self._listener.daemon = True
         self._listener.start()
         logger.info("Hotkey listener started")
@@ -66,31 +63,3 @@ class HotkeyManager:
             self._listener.stop()
             self._listener = None
             logger.info("Hotkey listener stopped")
-
-    def _on_press(self, key: keyboard.Key) -> None:
-        with self._lock:
-            self._pressed.add(self._normalize(key))
-            pressed_frozen = frozenset(self._pressed)
-
-        for combo, callback in self._hotkeys.items():
-            if combo == pressed_frozen:
-                logger.debug("Hotkey matched: %s", combo)
-                threading.Thread(target=callback, daemon=True).start()
-
-    def _on_release(self, key: keyboard.Key) -> None:
-        with self._lock:
-            self._pressed.discard(self._normalize(key))
-
-    @staticmethod
-    def _normalize(key: keyboard.Key) -> keyboard.Key:
-        """Collapse left/right modifiers into a single key."""
-        if hasattr(key, "vk"):
-            return key
-        # Map right-side modifiers to left-side
-        mapping = {
-            keyboard.Key.ctrl_r: keyboard.Key.ctrl_l,
-            keyboard.Key.shift_r: keyboard.Key.shift,
-            keyboard.Key.alt_r: keyboard.Key.alt_l,
-            keyboard.Key.alt_gr: keyboard.Key.alt_l,
-        }
-        return mapping.get(key, key)

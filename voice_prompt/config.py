@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 DEFAULTS: dict[str, Any] = {
     "hotkeys": {
-        "record": "ctrl+shift+r",
+        "record": "ctrl+shift+q",
         "cancel": "esc",
         "mode": "toggle",
     },
@@ -20,17 +20,18 @@ DEFAULTS: dict[str, Any] = {
         "channels": 1,
         "silence_threshold": 0.01,
         "silence_duration": 2.0,
+        "grace_period": 10.0,
         "max_recording_duration": 120,
         "format": "wav",
     },
     "transcription": {
-        "model": "large-v3",
+        "model": "small",
         "device": "auto",
         "compute_type": "int8",
         "language": "en",
         "initial_prompt": "",
         "vad_filter": True,
-        "beam_size": 5,
+        "beam_size": 1,
         "word_timestamps": False,
     },
     "output": {

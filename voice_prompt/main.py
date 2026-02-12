@@ -21,6 +21,34 @@ from voice_prompt.transcriber import WhisperTranscriber
 console = Console()
 logger = logging.getLogger("voice_prompt")
 
+LOCK_FILE = Path.home() / ".voice-to-claude" / "voice-prompt.lock"
+
+
+def _acquire_lock() -> bool:
+    """Try to acquire a lock file. Returns False if another instance is running."""
+    LOCK_FILE.parent.mkdir(parents=True, exist_ok=True)
+    if LOCK_FILE.exists():
+        # Check if the PID in the lock file is still alive
+        try:
+            old_pid = int(LOCK_FILE.read_text().strip())
+            import psutil
+            if psutil.pid_exists(old_pid):
+                return False
+        except Exception:
+            # psutil not available or bad lock file — check with os
+            try:
+                old_pid = int(LOCK_FILE.read_text().strip())
+                os.kill(old_pid, 0)  # signal 0 = just check if alive
+                return False
+            except (OSError, ValueError):
+                pass  # process is dead or bad pid, stale lock
+    LOCK_FILE.write_text(str(os.getpid()))
+    return True
+
+
+def _release_lock() -> None:
+    LOCK_FILE.unlink(missing_ok=True)
+
 
 def _setup_logging(level: str, log_file: str | None) -> None:
     handlers: list[logging.Handler] = [RichHandler(rich_tracebacks=True, show_path=False)]
@@ -62,8 +90,10 @@ class VoicePrompt:
             channels=config.audio["channels"],
             silence_threshold=config.audio["silence_threshold"],
             silence_duration=config.audio["silence_duration"],
+            grace_period=config.audio.get("grace_period", 10.0),
             max_duration=config.audio["max_recording_duration"],
             temp_dir=config.system.get("temp_dir"),
+            on_auto_stop=self._finish_recording,
         )
 
         self.transcriber = WhisperTranscriber(
@@ -99,16 +129,12 @@ class VoicePrompt:
         try:
             self.recorder.start()
             console.print("[bold green]Recording…[/] Press hotkey again to stop.")
-            if self.config.notifications["on_record_start"]:
-                _notify("Voice Prompt", "Recording started…")
         except Exception:
             logger.exception("Failed to start recording")
-            _notify("Voice Prompt", "Failed to start recording")
 
     def _finish_recording(self) -> None:
         audio_path = self.recorder.stop()
         if audio_path is None:
-            console.print("[yellow]No audio captured.[/]")
             return
 
         console.print("[cyan]Transcribing…[/]")
@@ -122,20 +148,15 @@ class VoicePrompt:
                 dest = failed_dir / audio_path.name
                 shutil.copy2(audio_path, dest)
                 logger.info("Saved failed audio to %s", dest)
-            _notify("Voice Prompt", "Transcription failed")
             return
         finally:
             audio_path.unlink(missing_ok=True)
 
         if not text:
-            console.print("[yellow]No speech detected.[/]")
             return
 
         console.print(f"[green]Transcribed:[/] {text}")
         self.outputter.output(text)
-
-        if self.config.notifications["on_transcription_complete"]:
-            _notify("Voice Prompt", f"Typed: {text[:80]}")
 
     def _on_cancel(self) -> None:
         if self.recorder.is_recording:
@@ -146,6 +167,11 @@ class VoicePrompt:
 
     def run(self) -> None:
         """Start listening for hotkeys (blocks until interrupted)."""
+        console.print("[cyan]Loading Whisper model into memory…[/]")
+        self.transcriber.load_model()
+        console.print("[green]Model ready![/]")
+        _notify("Voice Prompt", "Model loaded. Ready to record!")
+
         self.hotkey_mgr.register(
             self.config.hotkeys["record"], self._on_record_toggle
         )
@@ -160,6 +186,7 @@ class VoicePrompt:
             f"[bold]Voice-to-Claude running.[/] Press [cyan]{record_key}[/] to record, "
             f"[cyan]Ctrl+C[/] to quit."
         )
+        _notify("Voice Prompt", f"Ready! Press {record_key} to record.")
 
         try:
             while self._running:
@@ -172,10 +199,17 @@ class VoicePrompt:
 
 
 def _cmd_start(args: argparse.Namespace) -> None:
+    if not _acquire_lock():
+        _notify("Voice Prompt", "Already running!")
+        return
+
     cfg = ConfigManager(config_path=Path(args.config) if args.config else None)
     _setup_logging(cfg.log_level, cfg.system.get("log_file"))
     app = VoicePrompt(cfg)
-    app.run()
+    try:
+        app.run()
+    finally:
+        _release_lock()
 
 
 def _cmd_test(args: argparse.Namespace) -> None:

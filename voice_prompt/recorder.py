@@ -5,7 +5,7 @@ import tempfile
 import threading
 import wave
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional
 
 import numpy as np
 import sounddevice as sd
@@ -22,17 +22,22 @@ class AudioRecorder:
         channels: int = 1,
         silence_threshold: float = 0.01,
         silence_duration: float = 2.0,
+        grace_period: float = 10.0,
         max_duration: float = 120.0,
         temp_dir: Optional[str] = None,
+        on_auto_stop: Optional[Callable] = None,
     ) -> None:
         self.sample_rate = sample_rate
         self.channels = channels
         self.silence_threshold = silence_threshold
         self.silence_duration = silence_duration
+        self.grace_period = grace_period
         self.max_duration = max_duration
         self.temp_dir = temp_dir
+        self.on_auto_stop = on_auto_stop
 
         self._recording = False
+        self._speech_detected = False
         self._frames: list[np.ndarray] = []
         self._lock = threading.Lock()
 
@@ -48,10 +53,12 @@ class AudioRecorder:
 
         self._frames = []
         self._recording = True
+        self._speech_detected = False
         self._silent_chunks = 0
         self._chunk_size = int(self.sample_rate * 0.1)  # 100ms chunks
         self._max_chunks = int(self.max_duration / 0.1)
         self._silence_chunks_needed = int(self.silence_duration / 0.1)
+        self._grace_chunks = int(self.grace_period / 0.1)
 
         logger.info("Recording started (sample_rate=%d)", self.sample_rate)
 
@@ -75,22 +82,40 @@ class AudioRecorder:
         with self._lock:
             self._frames.append(indata.copy())
 
-            # Silence detection
             if self.silence_threshold > 0:
                 amplitude = np.abs(indata).mean() / 32768.0
-                if amplitude < self.silence_threshold:
-                    self._silent_chunks += 1
-                else:
-                    self._silent_chunks = 0
+                is_silent = amplitude < self.silence_threshold
 
-                if self._silent_chunks >= self._silence_chunks_needed and len(self._frames) > 10:
-                    logger.info("Silence detected, auto-stopping")
+                if not is_silent:
+                    if not self._speech_detected:
+                        logger.info("Speech detected")
+                    self._speech_detected = True
+                    self._silent_chunks = 0
+                elif is_silent:
+                    self._silent_chunks += 1
+
+                # Only auto-stop after speech was detected, then silence
+                if self._speech_detected and self._silent_chunks >= self._silence_chunks_needed:
+                    logger.info("Silence after speech, auto-stopping")
                     self._recording = False
+                    if self.on_auto_stop:
+                        threading.Thread(target=self.on_auto_stop, daemon=True).start()
+                    return
+
+                # Grace period expired with no speech at all
+                if not self._speech_detected and len(self._frames) >= self._grace_chunks:
+                    logger.info("Grace period expired, no speech detected")
+                    self._recording = False
+                    if self.on_auto_stop:
+                        threading.Thread(target=self.on_auto_stop, daemon=True).start()
+                    return
 
             # Max duration safety
             if len(self._frames) >= self._max_chunks:
                 logger.info("Max recording duration reached")
                 self._recording = False
+                if self.on_auto_stop:
+                    threading.Thread(target=self.on_auto_stop, daemon=True).start()
 
     def stop(self) -> Optional[Path]:
         """Stop recording and save audio to a temp WAV file. Returns the file path."""
