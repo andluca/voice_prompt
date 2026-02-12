@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Project-specific
+*.wav
+*.mp3
+*.flac
+failed/
+
+# Config with secrets (the example is tracked)
+config.yaml
+
+# Logs
+*.log
+
+# Whisper model cache (too large for git)
+models/

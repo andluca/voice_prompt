@@ -1,0 +1,138 @@
+# Voice-to-Claude Configuration
+# Copy this file to ~/.voice-to-claude/config.yaml and customize
+
+# Hotkey configuration
+hotkeys:
+  # Key combination to start/stop recording
+  # Format: "modifier+modifier+key" (e.g., "ctrl+shift+v")
+  # Modifiers: ctrl, alt, shift, cmd (macOS)
+  record: "ctrl+shift+v"
+  
+  # Key to cancel current recording
+  cancel: "escape"
+  
+  # Recording mode: "toggle" (press once to start, once to stop) 
+  #                 or "hold" (hold key to record, release to stop)
+  mode: "toggle"
+
+# Audio recording settings
+audio:
+  # Sample rate (Hz) - Whisper expects 16000
+  sample_rate: 16000
+  
+  # Number of channels (1=mono, 2=stereo) - use mono for voice
+  channels: 1
+  
+  # Auto-stop when silence detected (0.0-1.0, 0=no auto-stop)
+  # Lower = more sensitive to silence
+  silence_threshold: 0.01
+  
+  # Seconds of silence before auto-stopping (if silence_threshold > 0)
+  silence_duration: 2.0
+  
+  # Maximum recording duration in seconds (safety limit)
+  max_recording_duration: 120
+  
+  # Audio format for temp files
+  format: "wav"
+
+# Whisper transcription settings
+transcription:
+  # Whisper model size
+  # Options: tiny, base, small, medium, large-v3
+  # large-v3: ~3GB, best accuracy for technical terms
+  model: "large-v3"
+  
+  # Device to run inference on
+  # Options: "auto" (detect GPU, fallback to CPU), "cpu", "cuda"
+  device: "auto"
+  
+  # Compute type for model
+  # CPU: "int8" (fastest, good accuracy)
+  # GPU: "float16" (faster), "float32" (highest accuracy)
+  compute_type: "int8"
+  
+  # Language hint (improves accuracy)
+  # Use "en" for English, or null for auto-detect
+  language: "en"
+  
+  # Initial prompt to provide context (optional)
+  # Example: "Technical discussion about software development"
+  initial_prompt: ""
+  
+  # Enable Voice Activity Detection (removes silence)
+  vad_filter: true
+  
+  # Beam size for decoding (1-10, higher=slower but more accurate)
+  beam_size: 5
+  
+  # Word-level timestamps (useful for debugging)
+  word_timestamps: false
+
+# Text output settings
+output:
+  # Output mode: "type" (simulate typing) or "clipboard" (copy to clipboard)
+  mode: "type"
+  
+  # Typing speed when mode is "type"
+  # Options: "instant" (no delay), or number of milliseconds between characters
+  # Example: 10 = 100 chars/second (realistic typing)
+  typing_speed: "instant"
+  
+  # Add newline at the end of transcribed text
+  add_newline: false
+  
+  # Clean up transcription (remove extra spaces, fix common errors)
+  cleanup: true
+
+# System settings
+system:
+  # Logging level: DEBUG, INFO, WARNING, ERROR, CRITICAL
+  log_level: "INFO"
+  
+  # Log file location (null to disable file logging)
+  log_file: "~/.voice-to-claude/voice-prompt.log"
+  
+  # Maximum log file size (MB) before rotation
+  log_max_size: 10
+  
+  # Number of rotated log files to keep
+  log_backup_count: 3
+  
+  # Directory to cache Whisper models
+  model_cache_dir: "~/.cache/whisper"
+  
+  # Directory for temporary audio files
+  temp_dir: null  # null = use system temp directory
+  
+  # Keep failed transcriptions for debugging
+  save_failed_audio: true
+  failed_audio_dir: "~/.voice-to-claude/failed"
+
+# Notifications
+notifications:
+  # Enable desktop notifications
+  enabled: true
+  
+  # Show notification when recording starts
+  on_record_start: true
+  
+  # Show notification when transcription completes
+  on_transcription_complete: true
+  
+  # Show notification on errors
+  on_error: true
+  
+  # Notification timeout (seconds)
+  timeout: 3
+
+# Advanced settings (typically don't need to change)
+advanced:
+  # Buffer size for audio recording (samples)
+  audio_buffer_size: 4096
+  
+  # Number of threads for transcription (0=auto)
+  num_threads: 0
+  
+  # Enable model quantization for faster inference (CPU only)
+  quantize: true

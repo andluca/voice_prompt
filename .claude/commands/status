@@ -1,0 +1,92 @@
+#!/bin/bash
+# Check project status and what's completed
+
+cat << 'EOF'
+📊 Project Status
+================================================================================
+EOF
+
+echo ""
+echo "📁 Project Structure:"
+echo "---"
+# Check key files
+files=(
+    "SPEC.md"
+    "README.md"
+    "requirements.txt"
+    "pyproject.toml"
+    "config.yaml.example"
+    ".claude/CLAUDE.md"
+    "voice_prompt/__init__.py"
+    "voice_prompt/config.py"
+    "voice_prompt/recorder.py"
+    "voice_prompt/transcriber.py"
+    "voice_prompt/outputter.py"
+    "voice_prompt/hotkey.py"
+    "voice_prompt/main.py"
+    "tests/test_config.py"
+    "scripts/setup.sh"
+    "scripts/setup.ps1"
+)
+
+for file in "${files[@]}"; do
+    if [ -f "$file" ]; then
+        echo "✅ $file"
+    else
+        echo "❌ $file"
+    fi
+done
+
+echo ""
+echo "📦 Dependencies:"
+echo "---"
+# Check if venv exists
+if [ -d "venv" ]; then
+    echo "✅ Virtual environment exists"
+    if [ -f "venv/bin/activate" ]; then
+        source venv/bin/activate
+        echo "✅ Virtual environment activated"
+    fi
+else
+    echo "❌ No virtual environment (run: python -m venv venv)"
+fi
+
+# Check key dependencies
+python -c "import yaml" 2>/dev/null && echo "✅ PyYAML installed" || echo "❌ PyYAML not installed"
+python -c "import sounddevice" 2>/dev/null && echo "✅ sounddevice installed" || echo "❌ sounddevice not installed"
+python -c "import pynput" 2>/dev/null && echo "✅ pynput installed" || echo "❌ pynput not installed"
+python -c "from faster_whisper import WhisperModel" 2>/dev/null && echo "✅ faster-whisper installed" || echo "❌ faster-whisper not installed"
+
+echo ""
+echo "🧪 Tests:"
+echo "---"
+if [ -d "tests" ]; then
+    test_count=$(find tests -name "test_*.py" | wc -l)
+    echo "✅ Tests directory exists ($test_count test files)"
+else
+    echo "❌ No tests directory"
+fi
+
+echo ""
+echo "📋 TODO Progress:"
+echo "---"
+if [ -f "TODO.md" ]; then
+    completed=$(grep -c "- \[x\]" TODO.md || echo "0")
+    total=$(grep -c "- \[" TODO.md || echo "0")
+    echo "✅ $completed / $total tasks completed"
+    
+    echo ""
+    echo "Next tasks:"
+    grep -A 3 "## Phase 2:" TODO.md | head -5
+else
+    echo "❌ No TODO.md found"
+fi
+
+echo ""
+echo "================================================================================
+"
+echo "Commands:"
+echo "  ./.claude/commands/spec      # View specification"
+echo "  ./.claude/commands/test      # Run tests"
+echo "  ./.claude/commands/build     # Build component"
+echo "  ./.claude/commands/status    # This command"

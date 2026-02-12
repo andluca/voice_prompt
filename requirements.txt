@@ -1,0 +1,23 @@
+# Core dependencies for voice-to-claude
+
+# Whisper transcription (optimized, 4x faster than openai-whisper)
+faster-whisper>=1.0.0
+
+# Audio recording (cross-platform)
+sounddevice>=0.4.6
+numpy>=1.24.0
+
+# Keyboard handling (global hotkeys and typing simulation)
+pynput>=1.7.6
+
+# Configuration management
+PyYAML>=6.0
+
+# Notifications (optional but recommended)
+plyer>=2.1.0
+
+# Rich terminal output (optional, for better CLI UX)
+rich>=13.0.0
+
+# Logging
+python-json-logger>=2.0.7

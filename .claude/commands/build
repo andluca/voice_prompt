@@ -1,0 +1,180 @@
+#!/bin/bash
+# Build or work on a specific component
+
+COMPONENT="${1:-}"
+
+cat << 'EOF'
+🔨 Build Component
+================================================================================
+EOF
+
+if [ -z "$COMPONENT" ]; then
+    echo ""
+    echo "Usage: ./build <component>"
+    echo ""
+    echo "Available components:"
+    echo "  config       - ConfigManager (Phase 2.1)"
+    echo "  recorder     - AudioRecorder (Phase 2.2)"
+    echo "  transcriber  - WhisperTranscriber (Phase 2.3)"
+    echo "  outputter    - TextOutputter (Phase 2.4)"
+    echo "  hotkey       - HotkeyManager (Phase 2.5)"
+    echo "  main         - Main integration (Phase 2.6)"
+    echo "  setup        - Installation scripts (Phase 3)"
+    echo "  tests        - Test suite (Phase 4)"
+    echo ""
+    echo "Example:"
+    echo "  ./build config       # Start building ConfigManager"
+    echo ""
+    exit 0
+fi
+
+case "$COMPONENT" in
+    config)
+        echo "Building ConfigManager (Phase 2.1)"
+        echo "---"
+        echo "📋 Requirements from SPEC.md:"
+        grep -A 10 "### 2.1 Configuration Management" TODO.md
+        echo ""
+        echo "📝 Files to create:"
+        echo "  - voice_prompt/config.py"
+        echo "  - tests/test_config.py"
+        echo ""
+        echo "🎯 Key features:"
+        echo "  - Load YAML with defaults"
+        echo "  - Validate configuration schema"
+        echo "  - Expand user paths (~/.voice-to-claude)"
+        echo "  - Handle missing/invalid config gracefully"
+        echo ""
+        echo "💡 See .claude/skills/python-best-practices.md for patterns"
+        ;;
+    
+    recorder)
+        echo "Building AudioRecorder (Phase 2.2)"
+        echo "---"
+        echo "📋 Requirements from SPEC.md:"
+        grep -A 10 "### 2.2 Audio Recording" TODO.md
+        echo ""
+        echo "📝 Files to create:"
+        echo "  - voice_prompt/recorder.py"
+        echo "  - tests/test_recorder.py"
+        echo ""
+        echo "🎯 Key features:"
+        echo "  - Record audio with sounddevice"
+        echo "  - Support hold-to-record and toggle modes"
+        echo "  - Silence detection (optional)"
+        echo "  - Save to temporary WAV file"
+        echo ""
+        echo "💡 See .claude/skills/cross-platform-development.md for audio"
+        ;;
+    
+    transcriber)
+        echo "Building WhisperTranscriber (Phase 2.3)"
+        echo "---"
+        echo "📋 Requirements from SPEC.md:"
+        grep -A 10 "### 2.3 Whisper Transcription" TODO.md
+        echo ""
+        echo "📝 Files to create:"
+        echo "  - voice_prompt/transcriber.py"
+        echo "  - tests/test_transcriber.py"
+        echo ""
+        echo "🎯 Key features:"
+        echo "  - Load large-v3 model (auto-download first run)"
+        echo "  - Keep model in memory (don't reload)"
+        echo "  - GPU auto-detection with CPU fallback"
+        echo "  - Transcribe audio files to text"
+        echo ""
+        echo "💡 Use lazy loading pattern from .clinerules"
+        ;;
+    
+    outputter)
+        echo "Building TextOutputter (Phase 2.4)"
+        echo "---"
+        echo "📋 Requirements from SPEC.md:"
+        grep -A 10 "### 2.4 Text Output" TODO.md
+        echo ""
+        echo "📝 Files to create:"
+        echo "  - voice_prompt/outputter.py"
+        echo "  - tests/test_outputter.py"
+        echo ""
+        echo "🎯 Key features:"
+        echo "  - Type text into active window with pynput"
+        echo "  - Support instant and realistic typing speeds"
+        echo "  - Alternative clipboard mode"
+        echo "  - Handle special characters"
+        echo ""
+        echo "💡 See .claude/skills/cross-platform-development.md for keyboard"
+        ;;
+    
+    hotkey)
+        echo "Building HotkeyManager (Phase 2.5)"
+        echo "---"
+        echo "📋 Requirements from SPEC.md:"
+        grep -A 10 "### 2.5 Hotkey Management" TODO.md
+        echo ""
+        echo "📝 Files to create:"
+        echo "  - voice_prompt/hotkey.py"
+        echo ""
+        echo "🎯 Key features:"
+        echo "  - Register global hotkeys with pynput"
+        echo "  - Parse hotkey strings (e.g., 'ctrl+shift+v')"
+        echo "  - Run listener in background thread"
+        echo "  - Handle hotkey events"
+        echo ""
+        echo "⚠️  Critical: Run listener in background thread!"
+        ;;
+    
+    main)
+        echo "Building Main Integration (Phase 2.6)"
+        echo "---"
+        echo "📋 Requirements from SPEC.md:"
+        grep -A 10 "### 2.6 Main Integration" TODO.md
+        echo ""
+        echo "📝 Files to create:"
+        echo "  - voice_prompt/__init__.py"
+        echo "  - voice_prompt/main.py"
+        echo ""
+        echo "🎯 Key features:"
+        echo "  - CLI interface (start, stop, test, status)"
+        echo "  - Integrate all components"
+        echo "  - Event loop: hotkey → record → transcribe → output"
+        echo "  - Error handling and logging"
+        echo ""
+        echo "⚠️  Build after all other components are done"
+        ;;
+    
+    setup)
+        echo "Building Installation Scripts (Phase 3)"
+        echo "---"
+        echo "📝 Files to create:"
+        echo "  - scripts/setup.sh (Linux)"
+        echo "  - scripts/setup.ps1 (Windows)"
+        echo "  - scripts/install-service.sh"
+        echo "  - scripts/download-model.py"
+        echo ""
+        echo "💡 See .claude/skills/cross-platform-development.md for scripts"
+        ;;
+    
+    tests)
+        echo "Building Test Suite (Phase 4)"
+        echo "---"
+        echo "📝 Files to create:"
+        echo "  - tests/test_config.py"
+        echo "  - tests/test_recorder.py"
+        echo "  - tests/test_transcriber.py"
+        echo "  - tests/test_outputter.py"
+        echo "  - tests/test_integration.py"
+        echo "  - tests/samples/*.wav"
+        echo ""
+        echo "💡 See .claude/skills/python-best-practices.md for testing"
+        ;;
+    
+    *)
+        echo "❌ Unknown component: $COMPONENT"
+        echo ""
+        echo "Run './build' to see available components"
+        exit 1
+        ;;
+esac
+
+echo ""
+echo "Ready to build $COMPONENT!"
